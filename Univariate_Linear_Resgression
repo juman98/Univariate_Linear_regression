@@ -1,0 +1,109 @@
+#Import important libraries/classes
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt 
+from sklearn.model_selection import train_test_split
+
+#read the data file 
+data_file=pd.read_csv("Years_Salary.csv')
+
+#Testing if data_file has the right type of data 
+data=pd.DataFrame(data_file)
+data.head(5)
+
+#Predictors and responses definition 
+x=data["YearsExperience"]
+y=data["Salary"]
+x=np.array(x)
+y=np.array(y)
+
+#Data plotting
+plt.scatter(x, y,color="black",s=35, marker="x",alpha=1)
+plt.title('Salary vs Years of Experience')
+plt.xlabel('Years of Experience')
+plt.ylabel('Salary')
+plt.grid()
+plt.show()
+
+#Data Testing and Training
+x_train, x_test, y_train, y_test =train_test_split(x, y, train_size=.666, test_size=0.333)
+y_train=y_train.reshape(-1,1)
+x_train_org=x_train
+x_train_org=x_train_org.reshape(-1,1)
+
+#Train and Test Data plotting
+plt.scatter(x_test,y_test,color="blue",s=35,alpha=1,label="Testing Data")
+plt.scatter(x_train,y_train,color="red",s=35,alpha=1,marker="v",label="Training Data")
+plt.title('Salary vs Years of Experience (Testing and Training Set)')
+plt.xlabel('Years of Experience')
+plt.ylabel('Salary')
+plt.grid()
+plt.legend()
+plt.show()
+
+#Linear Regression Model:
+#Concatenation
+x_train = np.stack((np.ones(x_train.shape), x_train)).T
+
+# Initialize theta matrix
+theta = np.ones((2, 1))
+
+# Number of gradient descent iterations
+no_of_iterations =250
+
+# Learning rate a
+alpha =.001
+# cost function vector J(theta)
+j_vector = np.zeros(no_of_iterations)
+
+m = x_train.shape[0]
+for i in range(no_of_iterations):
+    temp = np.matmul(x_train, theta)
+    # Calculate new theta values
+    theta0 = theta[0] - alpha * (sum((temp - y_train)) / m)
+    theta1 = theta[1] - alpha * (sum((temp - y_train) * x_train_org) / m)
+    # Assign these values to theta matrix
+    theta[0] = theta0
+    theta[1] = theta1
+    # Calculate cost function J(theta)
+    j_vector[i] = sum(np.square((temp - y_train))) / (2 * m)
+
+#Values 
+#print('Optimals for Theta0=3259 and Theta1=1196')
+print("Theta0 Value: ",theta0)
+print("Theta1 Value: ",theta1)
+print("The Equation of the Hypothesis h(x): \n h(x)= "+ str(theta0)+" + "+str(theta1)+"x")
+
+#cost function vs number of iterations plot
+plt.plot(j_vector,color="darkgreen")
+plt.grid()
+plt.title("cost function vs number of iterations")
+plt.xlabel("#no of iterations")
+plt.ylabel("Cost function")
+plt.yscale('log')
+plt.show()
+
+#Prediction variables definition
+Y_predict_test=theta[0]+theta[1]*x_test  
+Y_predict_train=np.matmul(x_train, theta)
+
+#Prediction plotting
+#training data prediction plotting
+plt.scatter(x_train_org,y_train,color="blue",alpha=1,label="Training Data")
+plt.plot(x_train_org,Y_predict_train,color="red",linewidth=2,label="Predicted Data h(x)")
+plt.xlabel("Years of Experience")
+plt.ylabel("Salary")
+plt.title("Training Data Prediction")
+plt.grid()
+plt.legend()
+plt.show()
+
+#testing data prediction plotting
+plt.scatter(x_test,y_test,color="blue",alpha=1,label="Testing Data")
+plt.plot(x_test,Y_predict_test,color="red",linewidth=2,label="Predicted Data h(x)")
+plt.xlabel("Years of Experience")
+plt.ylabel("Salary")
+plt.title("Testing Data Prediction")
+plt.grid()
+plt.legend()
+plt.show()
